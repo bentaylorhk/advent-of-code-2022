@@ -8,13 +8,7 @@
 #include <queue>
 
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        return EXIT_FAILURE;
-    }
-
-    char * filename = argv[1];
-
-    std::ifstream file(filename);
+    std::ifstream file(INPUT_FILENAME);
     std::string line;
 
     std::priority_queue<int, std::vector<int>, std::greater<int>> queue;
