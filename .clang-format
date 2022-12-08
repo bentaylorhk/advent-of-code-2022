@@ -1,0 +1,45 @@
+﻿# This confidential and proprietary software may be used only as
+# authorised by a licensing agreement from Arm Ltd.
+#   Copyright: 2020 - 2022 Arm Ltd. All Rights Reserved.
+# The entire notice above must be reproduced on all authorised
+# copies and copies may only be made to the extent permitted
+# by a licensing agreement from Arm Ltd.
+
+---
+Language: Cpp
+BasedOnStyle: Mozilla
+AccessModifierOffset: -4
+AlignAfterOpenBracket: Align
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortFunctionsOnASingleLine: InlineOnly
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
+BinPackArguments: false
+BinPackParameters: false
+BreakBeforeBraces: Stroustrup
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeComma
+BreakInheritanceList: BeforeComma
+ColumnLimit: 100
+CompactNamespaces: true
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+Cpp11BracedListStyle: true
+IncludeBlocks: Regroup
+IndentPPDirectives: BeforeHash
+IndentWidth: 4
+NamespaceIndentation: All
+ObjCBlockIndentWidth: 4
+PointerAlignment: Middle
+ReflowComments: true
+SortIncludes: CaseSensitive
+SortUsingDeclarations: true
+SpaceAfterCStyleCast: true
+SpaceBeforeCpp11BracedList: true
+Standard: c++17
+TabWidth: 4
+UseTab: Never
+
+...
