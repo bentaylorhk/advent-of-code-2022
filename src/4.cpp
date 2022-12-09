@@ -40,8 +40,11 @@ int main(int argc, char * argv[])
             smaller_max = &first_max;
         }
 
-        if (*larger_min <= *smaller_min && *larger_max >= *smaller_max) {
-            sum++;
+        for (int i = *smaller_min; i <= *smaller_max; i++) {
+            if (i >= *larger_min && i <= *larger_max) {
+                sum++;
+                break;
+            }
         }
     }
 
