@@ -33,7 +33,7 @@ int main(int argc, char * argv[])
 
         deque.push_back(c);
 
-        if (deque.size() == 4) {
+        if (deque.size() == 14) {
             printf("%d\n", i + 1);
             break;
         }
