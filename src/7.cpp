@@ -1,0 +1,140 @@
+/**
+ * Benjamin Michael Taylor
+ * 2022
+ */
+
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
+
+class File {
+   public:
+    std::string name;
+    int size;
+
+    File(std::string name, int size) : name(std::move(name)), size(size) {
+    }
+};
+
+class Dir {
+   public:
+    std::string name;
+    std::vector<File> files;
+    std::vector<Dir> dirs;
+    Dir* parent;
+
+    Dir(std::string name, Dir* parent) : name(std::move(name)), parent(parent) {
+    }
+
+    void addFile(File file) {
+        files.push_back(file);
+    }
+
+    void addDir(Dir dir) {
+        dirs.push_back(dir);
+    }
+
+    int sumFileSize() {
+        int sum = 0;
+        for (File file : files) {
+            sum += file.size;
+        }
+        for (Dir dir : dirs) {
+            sum += dir.sumFileSize();
+        }
+        return sum;
+    }
+
+    bool contains(const std::string& fileName) {
+        for (const File& file : files) {
+            if (file.name == fileName) {
+                return true;
+            }
+        }
+        for (const Dir& dir : dirs) {
+            if (dir.name == fileName) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    Dir* getDir(const std::string& dirName) {
+        for (Dir dir : dirs) {
+            if (dir.name == dirName) {
+                return &dir;
+            }
+        }
+    }
+
+    std::string toString(int indentCount) {
+        std::string dirString;
+        for (int i = 0; i < indentCount; i++) {
+            dirString += " ";
+        }
+        dirString = "- " + this->name + " (dir)\n";
+        for (Dir dir : dirs) {
+            dirString += dir.toString(indentCount + 2);
+        }
+        for (const File& file : files) {
+            for (int i = 0; i < indentCount + 2; i++) {
+                dirString += " ";
+            }
+            dirString += "- " + file.name + " (file)\n";
+        }
+    }
+};
+
+std::vector<std::string> split(const std::string& string) {
+    std::vector<std::string> words;
+    std::stringstream ss(string);
+    std::string word;
+    while (std::getline(ss, word, ' ')) {
+        words.push_back(word);
+    }
+    return words;
+}
+
+int main(int argc, char* argv[]) {
+    std::ifstream file(INPUT_FILENAME);
+    std::string line;
+
+    Dir rootDir("/", nullptr);
+    Dir* currentDir = &rootDir;
+
+    while (std::getline(file, line)) {
+        std::vector<std::string> words = split(line);
+
+        if (words[0] == "$") {
+            if (words[1] == "cd") {
+                std::string dirName = words[2];
+                if (dirName == "/") {
+                    currentDir = &rootDir;
+                } else if (dirName == "..") {
+                    currentDir = currentDir->parent;
+                } else {
+                    currentDir = currentDir->getDir(dirName);
+                }
+            }
+        } else {
+            std::string fileName = words[1];
+            if (currentDir->contains(fileName)) {
+                continue;
+            }
+            if (words[0] == "dir") {
+                Dir newDir = Dir(fileName, currentDir);
+                currentDir->addDir(newDir);
+            } else {
+                File newFile = File(fileName, std::stoi(words[0]));
+                currentDir->addFile(newFile);
+            }
+        }
+    }
+
+    std::printf(rootDir.toString(0).c_str());
+
+    return EXIT_SUCCESS;
+}
