@@ -85,6 +85,7 @@ class Dir {
             }
             dirString += "- " + file->name + " (file)\n";
         }
+        return dirString;
     }
 };
 
@@ -102,8 +103,8 @@ int main(int argc, char* argv[]) {
     std::ifstream file(INPUT_FILENAME);
     std::string line;
 
-    Dir rootDir("/", nullptr);
-    Dir* currentDir = &rootDir;
+    Dir * rootDir = new Dir("/", nullptr);
+    Dir* currentDir = rootDir;
 
     while (std::getline(file, line)) {
         std::vector<std::string> words = split(line);
@@ -112,7 +113,7 @@ int main(int argc, char* argv[]) {
             if (words[1] == "cd") {
                 std::string dirName = words[2];
                 if (dirName == "/") {
-                    currentDir = &rootDir;
+                    currentDir = rootDir;
                 } else if (dirName == "..") {
                     currentDir = currentDir->parent;
                 } else {
@@ -139,7 +140,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    std::printf(rootDir.toString(0).c_str());
+    // std::printf(rootDir->toString(0).c_str());
 
     return EXIT_SUCCESS;
 }
