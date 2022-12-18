@@ -25,27 +25,19 @@ class Dir {
     std::vector<File*> files;
     std::vector<Dir*> dirs;
     Dir* parent;
+    int size;
 
-    Dir(std::string name, Dir* parent) : name(std::move(name)), parent(parent) {
+    Dir(std::string name, Dir* parent)
+        : name(std::move(name)), parent(parent), size(0) {
     }
 
     void addFile(File* file) {
         files.push_back(file);
+        this->propagateFileSize(file->size);
     }
 
     void addDir(Dir* dir) {
         dirs.push_back(dir);
-    }
-
-    int sumFileSize() {
-        int sum = 0;
-        for (const File* file : files) {
-            sum += file->size;
-        }
-        for (Dir* dir : dirs) {
-            sum += dir->sumFileSize();
-        }
-        return sum;
     }
 
     bool contains(const std::string& fileName) {
@@ -68,6 +60,7 @@ class Dir {
                 return dir;
             }
         }
+        return nullptr;
     }
 
     std::string toString(int indentCount) {
@@ -76,7 +69,10 @@ class Dir {
             dirString += " ";
         }
         dirString = "- " + this->name + " (dir)\n";
-        for (Dir *dir : dirs) {
+        for (Dir* dir : dirs) {
+            for (int i = 0; i < indentCount + 2; i++) {
+                dirString += " ";
+            }
             dirString += dir->toString(indentCount + 2);
         }
         for (File* file : files) {
@@ -86,6 +82,32 @@ class Dir {
             dirString += "- " + file->name + " (file)\n";
         }
         return dirString;
+    }
+
+    void free() {
+        for (Dir* dir : dirs) {
+            dir->free();
+            delete dir;
+        }
+    }
+
+    void propagateFileSize(int sizeIncrease) {
+        this->size += sizeIncrease;
+        if (parent != nullptr) {
+            parent->propagateFileSize(sizeIncrease);
+        }
+    }
+
+    int getDeleteSize(int maxSize = 100000) {
+        if (this->size <= maxSize) {
+            return maxSize;
+        } else {
+            int sum = 0;
+            for (Dir* dir : this->dirs) {
+                sum += dir->getDeleteSize();
+            }
+            return sum;
+        }
     }
 };
 
@@ -103,7 +125,7 @@ int main(int argc, char* argv[]) {
     std::ifstream file(INPUT_FILENAME);
     std::string line;
 
-    Dir * rootDir = new Dir("/", nullptr);
+    Dir* rootDir = new Dir("/", nullptr);
     Dir* currentDir = rootDir;
 
     while (std::getline(file, line)) {
@@ -131,16 +153,23 @@ int main(int argc, char* argv[]) {
                 continue;
             }
             if (words[0] == "dir") {
-                Dir * newDir = new Dir(fileName, currentDir);
+                Dir* newDir = new Dir(fileName, currentDir);
                 currentDir->addDir(newDir);
             } else {
-                File * newFile = new File(fileName, std::stoi(words[0]));
+                File* newFile = new File(fileName, std::stoi(words[0]));
                 currentDir->addFile(newFile);
             }
         }
     }
 
-    // std::printf(rootDir->toString(0).c_str());
+    std::printf(rootDir->toString(0).c_str());
+
+    std::printf("Sum: %d\n", rootDir->size);
+
+    std::printf("Delete Size: %d\n", rootDir->getDeleteSize());
+
+    rootDir->free();
+    delete rootDir;
 
     return EXIT_SUCCESS;
 }
