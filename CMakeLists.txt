@@ -8,11 +8,16 @@ file(GLOB_RECURSE ADVENT_SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/s
 foreach (SOURCE ${ADVENT_SOURCES})
     get_filename_component(TARGET_NAME ${SOURCE} NAME_WE)
     add_executable(${TARGET_NAME} ${SOURCE})
+    add_executable(${TARGET_NAME}-example ${SOURCE})
     target_compile_definitions(
             ${TARGET_NAME}
             PUBLIC
             "INPUT_FILENAME=\"${CMAKE_CURRENT_SOURCE_DIR}/input/${TARGET_NAME}.txt\""
-            "INPUT_EXAMPLE_FILENAME=\"${CMAKE_CURRENT_SOURCE_DIR}/input/${TARGET_NAME}_example.txt\""
+    )
+    target_compile_definitions(
+            ${TARGET_NAME}-example
+            PUBLIC
+            "INPUT_FILENAME=\"${CMAKE_CURRENT_SOURCE_DIR}/input/${TARGET_NAME}_example.txt\""
     )
     set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 20)
 endforeach ()
