@@ -40,12 +40,16 @@ class Dir {
         dirs.push_back(dir);
     }
 
-    bool contains(const std::string& fileName) {
+    bool containsFile(const std::string& fileName) {
         for (const File* file : files) {
             if (file->name == fileName) {
                 return true;
             }
         }
+        return false;
+    }
+
+    bool containsDir(const std::string& fileName) {
         for (const Dir* dir : dirs) {
             if (dir->name == fileName) {
                 return true;
@@ -100,7 +104,7 @@ class Dir {
 
     int getDeleteSize(int maxSize = 100000) {
         if (this->size <= maxSize) {
-            return maxSize;
+            return this->size;
         } else {
             int sum = 0;
             for (Dir* dir : this->dirs) {
@@ -139,7 +143,7 @@ int main(int argc, char* argv[]) {
                 } else if (dirName == "..") {
                     currentDir = currentDir->parent;
                 } else {
-                    if (currentDir->contains(dirName)) {
+                    if (currentDir->containsDir(dirName)) {
                         currentDir = currentDir->getDir(dirName);
                     } else {
                         Dir newDir(dirName, currentDir);
@@ -149,7 +153,8 @@ int main(int argc, char* argv[]) {
             }
         } else {
             std::string fileName = words[1];
-            if (currentDir->contains(fileName)) {
+            if (currentDir->containsFile(fileName) ||
+                currentDir->containsDir(fileName)) {
                 continue;
             }
             if (words[0] == "dir") {
