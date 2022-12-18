@@ -3,6 +3,8 @@
  * 2022
  */
 
+#include <math.h>
+
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -37,11 +39,13 @@ int main(int argc, char* argv[]) {
     int height = trees.size();
     int width = trees[0].size();
 
-    int visibleCount = (2 * width) + (2 * height) - 4;
+    int bestScore = 0;
 
     for (int y = 1; y < height - 1; y++) {
         for (int x = 1; x < width - 1; x++) {
-            for (const int* step : steps) {
+            int treeCount[4];
+            for (int i = 0; i < 4; i++) {
+                const int* step = steps[i];
                 int oX = x;
                 int oY = y;
                 bool visible = true;
@@ -49,20 +53,24 @@ int main(int argc, char* argv[]) {
                     oX += step[0];
                     oY += step[1];
                     if (trees[oY][oX] >= trees[y][x]) {
+                        treeCount[i] = std::abs((oX - x) + (oY - y));
                         visible = false;
                         break;
                     }
-
+                    if (visible) {
+                        treeCount[i] = std::abs((oX - x) + (oY - y));
+                    }
                 }
-                if (visible) {
-                    visibleCount += 1;
-                    break;
-                }
+            }
+            int score =
+                treeCount[0] * treeCount[1] * treeCount[2] * treeCount[3];
+            if (score > bestScore) {
+                bestScore = score;
             }
         }
     }
 
-    printf("Visible Count: %d\n", visibleCount);
+    printf("Best Score: %d\n", bestScore);
 
     return EXIT_SUCCESS;
 }
