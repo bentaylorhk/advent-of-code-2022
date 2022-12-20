@@ -27,9 +27,9 @@ std::map<char, operatorFunction> operators = {{'*', product}, {'+', addition}};
 
 class Monkey {
    public:
-    Monkey(const std::deque<int>& items, operatorFunction operation,
-           std::optional<int> operationValue, int testNumber, int trueMonkey,
-           int falseMonkey) {
+    Monkey(const std::deque<long long>& items, operatorFunction operation,
+           std::optional<int> operationValue, int testNumber,
+           int trueMonkey, int falseMonkey) {
         this->items = items;
         this->operation = operation;
         this->operationValue = operationValue;
@@ -44,33 +44,33 @@ class Monkey {
         return !items.empty();
     }
 
-    int inspectNextItem() {
+    int inspectNextItem(int modulo) {
         this->inspectCount++;
         int old = this->items.front();
         this->items.pop_front();
 
-        int operand = operationValue.has_value() ? operationValue.value() : old;
-        int newWorry = operation(old, operand);
-
-        return floor(newWorry / 3.0);
+        long long operand =
+            operationValue.has_value() ? operationValue.value() : old;
+        long long newWorry = operation(old, operand);
+        return newWorry % modulo;
     }
 
-    int getReceivingMonkey(int item) {
+    long long getReceivingMonkey(long long item) {
         return item % testNumber == 0 ? trueMonkey : falseMonkey;
     }
 
-    std::deque<int> items;
+    std::deque<long long> items;
     operatorFunction operation;
-    std::optional<int> operationValue;
-    int testNumber;
-    int trueMonkey;
-    int falseMonkey;
+    std::optional<long long> operationValue;
+    long long testNumber;
+    long long trueMonkey;
+    long long falseMonkey;
 
-    int inspectCount;
+    long long inspectCount;
 };
 
-std::deque<int> splitItems(const std::string& string) {
-    std::deque<int> items;
+std::deque<long long> splitItems(const std::string& string) {
+    std::deque<long long> items;
     std::stringstream ss(string);
     std::string word;
     while (std::getline(ss, word, ',')) {
@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) {
     std::regex ifTrueRegex(R"(    If true: throw to monkey (\d*))");
     std::regex ifFalseRegex(R"(    If false: throw to monkey (\d*))");
 
-    for (int monkeyCount = 0; !file.eof(); monkeyCount++) {
+    for (long long monkeyCount = 0; !file.eof(); monkeyCount++) {
         // Monkey line
         std::getline(file, line);
 
@@ -107,25 +107,25 @@ int main(int argc, char* argv[]) {
         std::regex_match(line, match, operationRegex);
         operatorFunction operation =
             operators.at(((std::string)match[1]).at(0));
-        std::optional<int> operationValue = std::nullopt;
+        std::optional<long long> operationValue = std::nullopt;
         if (match[2] != "old") {
-            operationValue = std::optional<int>(std::stoi(match[2]));
+            operationValue = std::optional<long long>(std::stoi(match[2]));
         }
 
         // Test
         std::getline(file, line);
         std::regex_match(line, match, testRegex);
-        int testNumber = std::stoi(match[1]);
+        long long testNumber = std::stoi(match[1]);
 
         // If true
         std::getline(file, line);
         std::regex_match(line, match, ifTrueRegex);
-        int trueMonkey = std::stoi(match[1]);
+        long long trueMonkey = std::stoi(match[1]);
 
         // If false
         std::getline(file, line);
         std::regex_match(line, match, ifFalseRegex);
-        int falseMonkey = std::stoi(match[1]);
+        long long falseMonkey = std::stoi(match[1]);
 
         // Blank line
         std::getline(file, line);
@@ -137,19 +137,25 @@ int main(int argc, char* argv[]) {
         monkeys.push_back(monkey);
     }
 
-    // Inspecting 20 times
-    for (int i = 0; i < 20; i++) {
-        for (Monkey & monkey : monkeys) {
+    long long modulo = 1;
+    for (Monkey& monkey : monkeys) {
+        modulo *= monkey.testNumber;
+    }
+
+    // Inspecting 10000 times
+    for (long long i = 0; i < 2000; i++) {
+        for (Monkey& monkey : monkeys) {
             while (monkey.hasItem()) {
-                int item = monkey.inspectNextItem();
-                int nextMonkey = monkey.getReceivingMonkey(item);
+                long long item = monkey.inspectNextItem(modulo);
+                long long nextMonkey = monkey.getReceivingMonkey(item);
                 monkeys[nextMonkey].items.push_back(item);
             }
         }
     }
 
     // Getting 2 max inspect counts
-    std::priority_queue<int, std::vector<int>, std::greater<>> maxInspectCount;
+    std::priority_queue<long long, std::vector<long long>, std::greater<>>
+        maxInspectCount;
     for (const Monkey& monkey : monkeys) {
         maxInspectCount.push(monkey.inspectCount);
         if (maxInspectCount.size() > 2) {
@@ -158,11 +164,11 @@ int main(int argc, char* argv[]) {
     }
 
     // Calculating monkey business
-    int monkeyBusiness = maxInspectCount.top();
+    long long monkeyBusiness = maxInspectCount.top();
     maxInspectCount.pop();
     monkeyBusiness *= maxInspectCount.top();
 
-    printf("Monkey Business: %d\n", monkeyBusiness);
+    printf("Monkey Business: %lld\n", monkeyBusiness);
 
     return EXIT_SUCCESS;
 }
