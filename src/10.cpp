@@ -13,9 +13,7 @@ int main(int argc, char* argv[]) {
 
     int X = 1;
 
-    int cycleCount = 1;
-
-    int strengthSum = 0;
+    int cycleCount = 0;
 
     std::regex regex(R"((.*) (.*))");
     while (std::getline(file, line)) {
@@ -27,25 +25,19 @@ int main(int argc, char* argv[]) {
         int instructionCycles = isNoop ? 1 : 2;
 
         for (int i = 0; i < instructionCycles; i++) {
-            if ((cycleCount - 20) % 40 == 0) {
-                int signalStrength = cycleCount * X;
-                strengthSum += signalStrength;
-                printf("%d: X = %d\n", cycleCount, X);
-                printf("    Signal Strength = %d\n", signalStrength);
-            }
+            int xPos = cycleCount % 40;
+            char pixel = xPos >= X - 1 && xPos <= X + 1 ? '#' : '.';
+            printf("%c", pixel);
             cycleCount++;
-        }
-
-        if (cycleCount > 220) {
-            break;
+            if (cycleCount % 40 == 0) {
+                printf("\n");
+            }
         }
 
         if (!isNoop) {
             X += std::stoi(match[2]);
         }
     }
-
-    printf("Sum: %d\n", strengthSum);
 
     return EXIT_SUCCESS;
 }
