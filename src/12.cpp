@@ -5,10 +5,10 @@
 
 #include <fstream>
 #include <iostream>
-#include <utility>
-#include <vector>
 #include <limits>
 #include <queue>
+#include <utility>
+#include <vector>
 
 struct Coordinate {
     int x, y;
@@ -25,6 +25,7 @@ class Grid {
    public:
     std::vector<std::vector<Node>> nodes;
     Coordinate start, end;
+    std::vector<Coordinate> startingCoords;
     Grid() {
         std::ifstream file(INPUT_FILENAME);
         std::string line;
@@ -32,7 +33,7 @@ class Grid {
             std::vector<Node> row;
             int x = 0;
             for (char c : line) {
-                int bestDistance = std::numeric_limits<int>::max();
+                int bestDistance = std::numeric_limits<int>::max() - 1;
                 if (c == 'S') {
                     c = 'a';
                     this->start = {x, y};
@@ -41,6 +42,11 @@ class Grid {
                     c = 'z';
                     this->end = {x, y};
                 }
+
+                if (c == 'a') {
+                    startingCoords.push_back({x, y});
+                }
+
                 row.push_back({c, bestDistance});
                 x++;
             }
@@ -56,7 +62,7 @@ class Grid {
         return nodes[0].size();
     }
 
-    Node & getNode(Coordinate coord) {
+    Node& getNode(Coordinate coord) {
         return this->nodes[coord.y][coord.x];
     }
 
@@ -95,9 +101,10 @@ class Grid {
 
             int nextDistance = this->getNode(coord).bestDistance + 1;
 
-            std::vector<Coordinate> validCoords = this->getValidAdjacentCoords(coord);
+            std::vector<Coordinate> validCoords =
+                this->getValidAdjacentCoords(coord);
 
-            for(auto adjacent : validCoords) {
+            for (auto adjacent : validCoords) {
                 if (nextDistance < this->getNode(adjacent).bestDistance) {
                     this->getNode(adjacent).bestDistance = nextDistance;
                     q.push(adjacent);
@@ -126,11 +133,16 @@ class Grid {
 int main(int argc, char* argv[]) {
     Grid grid;
 
-    //grid.print();
+    // grid.print();
+    int bestDistance = std::numeric_limits<int>::max();
+    for (Coordinate coord : grid.startingCoords) {
+        int distance = grid.shortestToEnd(coord);
+        if (distance < bestDistance) {
+            bestDistance = distance;
+        }
+    }
 
-    int endDistance = grid.shortestToEnd(grid.start);
-
-    printf("%d\n", endDistance);
+    printf("%d\n", grid.shortestToEnd({0, 4}));
 
     return EXIT_SUCCESS;
 }
