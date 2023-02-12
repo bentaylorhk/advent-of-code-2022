@@ -24,7 +24,7 @@ struct Node {
 class Grid {
    public:
     std::vector<std::vector<Node>> nodes;
-    Coordinate start, end;
+    Coordinate end;
     std::vector<Coordinate> startingCoords;
     Grid() {
         std::ifstream file(INPUT_FILENAME);
@@ -36,7 +36,6 @@ class Grid {
                 int bestDistance = std::numeric_limits<int>::max() - 1;
                 if (c == 'S') {
                     c = 'a';
-                    this->start = {x, y};
                     bestDistance = 0;
                 } else if (c == 'E') {
                     c = 'z';
@@ -87,13 +86,15 @@ class Grid {
     void print() {
         for (const auto& row : nodes) {
             for (Node node : row) {
-                printf("%c", node.height);
+                printf("%2d ", node.bestDistance);
             }
             printf("\n");
         }
     }
 
     int shortestToEnd(Coordinate initial) {
+        this->resetDistances(initial);
+
         // DFS
         std::queue<Coordinate> q;
         for (q.push(initial); !q.empty(); q.pop()) {
@@ -115,6 +116,14 @@ class Grid {
         return this->getNode(this->end).bestDistance;
     }
 
+    void resetDistances(Coordinate start) {
+        for (int y = 0; y < getHeight(); y++) {
+            for (int x = 0; x < getWidth(); x++) {
+                nodes[y][x].bestDistance = (x == start.x && y == start.y) ? 0 : std::numeric_limits<int>::max() - 1;
+            }
+        }
+    }
+
    private:
     [[nodiscard]] std::vector<Coordinate> getAdjacentCoords(Coordinate coord) {
         std::vector<Coordinate> adjacentCoords;
@@ -133,7 +142,6 @@ class Grid {
 int main(int argc, char* argv[]) {
     Grid grid;
 
-    // grid.print();
     int bestDistance = std::numeric_limits<int>::max();
     for (Coordinate coord : grid.startingCoords) {
         int distance = grid.shortestToEnd(coord);
@@ -142,7 +150,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    printf("%d\n", grid.shortestToEnd({0, 4}));
+    printf("%d\n", bestDistance);
 
     return EXIT_SUCCESS;
 }
